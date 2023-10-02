@@ -6,6 +6,8 @@
 
 #set path of browser
 browser=/usr/bin/firefox
+#uncomment the following line to use the chromium browser on the pi
+#browser=/usr/bin/chromium-browser
 #set port to open in browser. Port is defined in aprsd conf file(s)
 port=8888
 VERSION=1
