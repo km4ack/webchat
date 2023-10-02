@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=WebChat
 Comment=WebChat Messaging
-Exec=/home/N0CALL/Desktop/webchat/webchat
+Exec=/home/N0CALL/bin/webchat/webchat
 Icon=/usr/share/icons/Adwaita/scalable/actions/send-to-symbolic.svg
 Terminal=true
 Type=Application
