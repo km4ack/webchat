@@ -2,6 +2,14 @@
 
 MYDIR="$(cd "$(dirname "$0")" && pwd)"
 
+#verify not run as root
+who=$(whoami)
+if [ "${who}" = 'root' ]; then
+    echo "no need to use sudo with this script"
+    echo "try again without sudo"
+    exit 1
+fi
+
 #verify python is installed
 if ! hash python3; then
     echo "python not installed. Try"
