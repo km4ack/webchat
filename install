@@ -41,7 +41,7 @@ echo "installing aprsd"
 pip install aprsd
 
 #create bin dir if needed
-mkdir -p $HOME/bin/webchat
+mkdir -p $HOME/bin
 mv ${MYDIR} $HOME/bin/webchat
 
 #make files exec
