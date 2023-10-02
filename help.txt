@@ -4,8 +4,7 @@ Last Revised 02OCT2023
 =======
 Install
 =======
-Download from github
-bash install
+git clone https://github.com/km4ack/webchat.git $HOME/webchat && bash $HOME/webchat/install
 
 =======
 Depends
