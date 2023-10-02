@@ -9,8 +9,8 @@ WebChat allows you to send messages using the APRS protocol from any web browser
 
 # Install
 	git clone https://github.com/km4ack/webchat.git $HOME/webchat && bash $HOME/webchat/install
-The install script will install custom config files for Direwolf & the Mobilinkd
-TNC. It will also walk you through configuring WebChat.
+The install script will install custom config files for WebChat that supports Direwolf & the Mobilinkd
+TNC. It will also walk you through configuring WebChat with your call sign and location.
 
 # Help
 See [help.txt](https://github.com/km4ack/webchat/blob/main/help.txt)
