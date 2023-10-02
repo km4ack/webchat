@@ -9,7 +9,9 @@ WebChat allows you to send messages using the APRS protocol from any web browser
 
 # Install
 Open your terminal and paste the following line
+
 	git clone https://github.com/km4ack/webchat.git $HOME/webchat && bash $HOME/webchat/install
+
 The install script will install custom config files for WebChat that supports Direwolf & the Mobilinkd
 TNC. It will also walk you through configuring WebChat with your call sign and location. This install
 script will only configure the WebChat plugin for APRSD. It will configure WebChat for **RF only**. While 
