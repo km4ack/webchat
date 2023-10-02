@@ -1,0 +1,91 @@
+WebChat Script Help
+Last Revised 02OCT2023
+
+=======
+Install
+=======
+Download from github
+bash install
+
+=======
+Depends
+=======
+The following apps must be installed in addition to this software:
+direwolf - if using direwolf. (not needed for Mobilinkd)
+flrig - if used for rig control. (not needed for Mobilinkd)
+hamlib - if using flrig. (not needed for Mobilinkd)
+
+Each of the above needs to be installed and configured by the user
+before installing WebChat. This can be skipped if just using
+the Mobilinkd TNC.
+
+=======================
+Opening the Chat Client
+=======================
+The chat client will open in the firefox browser after you
+choose either Direwolf Local, Direwolf Network, or Mobilinkd.
+You can also open the page manually by opening the browser
+and navigating to 127.0.0.1:8888
+
+If Firefox is not installed on your computer, you will need
+to manually open the browser and navigate to 127.0.0.1:8888
+or updaate the webchat script with the full path to your 
+browser. This can be found at the top of the webchat script.
+
+==============
+Direwolf Local
+==============
+Use this option if you have direwolf running on your local machine.
+Direwolf must be installed and configured before starting WebChat.
+
+================
+Direwolf Network
+================
+Use this option if Direwolf is running on another machine that you 
+can connect to over the network. Direwolf must be configured and
+running before starting this option.
+
+=========
+Mobilinkd
+=========
+Use this option if you want to use a Mobilinkd TNC instead of 
+Direwolf. WebChat supports the Mobilinkd TNC 2, 3, & 4.
+
+The Mobilinkd TNC must be paired with the computer before using
+this option. Use the Bluetooth GUI interface on your computer
+to pair the Mobilinkd. Once paired, the TNC will disconnect
+within a few seconds or you may get a notice that "No usable
+services found for this device". This is expected!
+
+Use the Mobilinkd app to verify PTT settings and audio levels.
+
+It may take multiple tries in the WebChat app to start the
+Mobilinkd service. Assuming you have paired the device with
+your computer, try starting the Mobilinkd a few time if it
+doesn't succeed at first. After a few tries, a reboot might
+help. 
+
+====
+Help
+====
+Opens this file.
+
+===========
+Coordinates
+===========
+To get the correct coordinates for your position, go to Google maps
+in your browser. Left click on the map at your desired location.
+Look in the bottom center of the screen for the lat/long coordinates.
+Enter these coordinates into the WebChat settings.
+
+===========
+Rig Control
+===========
+If you will be using FLRIG for rig control, set this option to "Yes".
+This option is primarily used for local direwolf. It should be set
+to "No" for the Mobilinkd TNC. If using direwolf network, the rig 
+control will be handled by the networked computer running direwolf.
+
+
+
+

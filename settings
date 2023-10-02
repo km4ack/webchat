@@ -1,0 +1,97 @@
+#!/bin/bash
+
+#setting for webchat script
+#01OCT2023 KM4ACK
+
+
+
+lat_long(){
+    for file in $HOME/.config/aprsd/*; do
+        sed -i "s/latitude.*/latitude\ =\ ${lat}/" ${file}
+        sed -i "s/longitude.*/longitude\ =\ ${long}/" ${file}
+    done
+    echo "Latitude and Longitude updated"
+    sleep 3
+}
+
+ip_update(){
+    sed -i "s/host\ =\ [0-9].*/host\ =\ ${addr}/" $HOME/.config/aprsd/aprsd.dire.network
+    echo "IP Address updated"
+    sleep 3
+}
+
+call_update(){
+    for file in $HOME/.config/aprsd/*; do
+        sed -i "0,/callsign/{s/callsign.*/callsign\ =\ ${call}/}" ${file}
+    done
+    echo "Call Sign updated"
+    sleep 3
+}
+
+rig_control(){
+    read -p "Use FLRIG for rig control? y/n " ans
+    case $ans in
+        y)
+            touch $HOME/bin/webchat/.rig
+            ;;
+        Y)
+            touch $HOME/bin/webchat/.rig
+            ;;
+        n)
+            if [ -f $HOME/bin/webchat/.rig ]; then
+                rm $HOME/bin/webchat/.rig
+            fi
+            ;;
+        N)
+            if [ -f $HOME/bin/webchat/.rig ]; then
+                rm $HOME/bin/webchat/.rig
+            fi
+            ;;
+        *)
+            echo "invalid choice"
+            sleep 2
+            rig_control
+            ;;
+    esac
+    echo "Rig control setting updated"
+    sleep 2
+    menu
+}
+
+menu(){
+    clear;echo;echo
+    echo "1) Change Call Sign"
+    echo "2) Change lat/long"
+    echo "3) Change Network IP"
+    echo "4) Set Rig Control"
+    echo "5) Exit"
+
+    read -p "Choose and option " ans
+
+    case $ans in
+        1)
+            read -p "New call sign " call
+            call_update
+            ;;
+        2)
+            read -p "Latitude " lat
+            read -p "Longitude " long
+            lat_long
+            ;;
+        3)
+            read -p "New Network IP address " addr
+            ip_update
+            ;;
+        4)
+            rig_control
+            ;;
+        5)
+            exit
+            ;;
+        *)
+            echo "Invalid Choice"
+            sleep 2
+            menu
+    esac
+}
+menu

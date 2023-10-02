@@ -1,0 +1,194 @@
+#!/bin/bash
+
+
+#script to start aprsd webchat service
+#km4ack
+
+#set path of browser
+browser=/usr/bin/firefox
+#set port to open in browser. Port is defined in aprsd conf file(s)
+port=8888
+VERSION=1
+
+cleanup()
+{
+	sudo -A killall rigctld > /dev/null 2>&1
+    sudo -A killall direwolf > /dev/null 2>&1
+	sudo -A rfcomm release /dev/rfcomm8 > /dev/null 2>&1
+    aprsd=$(ps aux | grep aprsd | head -1 | awk '{print $2}')
+    if [ -n $aprsd ]; then
+        kill $aprsd > /dev/null 2>&1
+    fi
+    sleep 3
+    echo "shutdown complete. 73, de KM4ACK"
+}
+
+trap cleanup EXIT
+
+header(){
+    clear;echo;echo
+    echo "  Webchat Startup"
+    echo "-------------------"
+}
+#Get sudo passwd
+if [ ! -f /run/user/$UID/.ax25 ]; then
+    header
+    read -s -p "Sudo password? " PASS
+    echo $PASS | base64 > /run/user/$UID/.ax25
+    echo '#!/bin/bash' > /run/user/$UID/.axpw
+    echo 'PASS=$(base64 -d /run/user/$UID/.ax25)' >> /run/user/$UID/.axpw
+    echo 'echo $PASS' >> /run/user/$UID/.axpw
+    chmod +x /run/user/$UID/.axpw
+    export SUDO_ASKPASS=/run/user/$UID/.axpw
+    #reset sudo timer to prevent false positive
+    sudo -k
+    echo "Checking SUDO credentials....standby"
+    sudo -A touch /run/user/$UID/sutest 2>&1 </dev/null
+
+        if [ $? = 1 ]; then
+            echo "Wrong sudo password entered. Can't continue! Exiting"
+            rm /run/user/$UID/.ax25 /run/user/$UID/.axpw
+            exit
+        else 
+            echo "Credentials check out....continuing"
+        fi
+    
+else
+    export SUDO_ASKPASS=/run/user/$UID/.axpw
+fi
+
+rig_control_ck(){
+    #checks if rig control is "yes" and that FLRIG is running
+    if [ -f $HOME/bin/webchat/.rig ]; then
+    ck=$(pidof flrig)
+        if [ -z "${ck}" ]; then
+            echo "Rig control set to yes but FLRIG not running"
+            echo "Start FLRIG and try again"
+            sleep 5
+            menu
+        else
+            if ! hash rigctld; then
+                echo "hamlib not installed but required"
+                echo "for rig control. Please install hamlib"
+                exit 1
+            else
+                rigctld -m 4 &
+                sleep 1
+            fi
+        fi
+    fi
+}
+
+dire_local(){
+    echo "checking rig control"
+    rig_control_ck
+    echo "starting direwolf"
+    /usr/local/bin/direwolf &
+    sleep 1
+    echo "starting webchat"
+    aprsd_config=$HOME/.config/aprsd/aprsd.dire.local
+    $HOME/.local/bin/aprsd webchat -c $aprsd_config & > /dev/null 2>&1
+    sleep 3
+    ${browser} 127.0.0.1:$port &
+    menu
+}
+
+dire_network(){
+    echo "Ready to start Webchat."
+    echo "Return to this screen and press"
+    echo "5 then enter to exit"
+    read -n 1 -s -r -p "Press any key to continue"
+    aprsd_config=$HOME/.config/aprsd/aprsd.dire.network
+    $HOME/.local/bin/aprsd webchat -c $aprsd_config & > /dev/null 2>&1
+    sleep 2
+    ${browser} 127.0.0.1:$port &
+    menu
+}
+
+mobilinkd(){
+    #verify mobilinkd is paired with this computer
+    EXISTING=`bluetoothctl paired-devices | grep Mobilinkd`
+    if [ -z "$EXISTING" ]; then
+        echo "No Mobilinkd Bluetooth pair found"
+        echo "Please pair the Mobilinkd with this computer"
+        exit 1
+    fi
+    #scan for mobilinkd
+    echo "Scanning for Mobilinkd TNC"
+    MAC=$(hcitool scan)
+    TYPE=$(echo $MAC | awk '{print $4}')
+    #verify we find a mobilinkd
+    if [ "$TYPE" != 'TNC2' ] && [ "$TYPE" != 'TNC3' ] && [ "$TYPE" != 'TNC4' ]; then
+        echo "Mobilinkd Not Found"
+        sleep 2
+        menu
+    else
+        echo "Mobilinkd $TYPE found"
+    fi
+    MAC=$(echo $MAC | awk '{print $3}')
+    #set correct command depending on Mobilinkd version
+    case $TYPE in
+        TNC2) MAC=$MAC ;;
+        TNC3) MAC="$MAC 6" ;;
+        TNC4) MAC=$MAC ;;
+    esac
+    #attach to mobilinkd
+    sudo -A rfcomm bind /dev/rfcomm8 $MAC 6
+    #verify mobilinkd connected
+    ck=$(ls /dev/ | grep rfcomm8)
+    if [ -z "$ck" ]; then
+        echo "connection to mobilinkd failed"
+        sleep 3
+        menu
+    else
+        echo "Connected to Mobilinkd $TYPE"
+    fi
+    aprsd_config=$HOME/.config/aprsd/aprsd.mobilinkd
+    echo "Ready to start Webchat."
+    echo "Return to this screen and press"
+    echo "5 then enter to exit"
+    read -n 1 -s -r -p "Press any key to continue"
+    $HOME/.local/bin/aprsd webchat -c $aprsd_config & > /dev/null 2>&1
+    sleep 2
+    ${browser} 127.0.0.1:$port &
+    menu
+}
+
+menu(){
+    header
+    echo "1) Direwolf Local"
+    echo "2) Direwolf Network"
+    echo "3) Mobilinkd"
+    echo "4) Settings"
+    echo "5) Exit"
+    echo "6) Help"
+    echo
+    read -p "Pick transport number " ans
+
+    case $ans in
+        1)
+            dire_local ;;
+        2)
+            dire_network ;;
+        3)
+            mobilinkd ;;
+        4)
+            $HOME/bin/webchat/settings
+            menu ;;
+        5)
+            echo "Shutting down.....standby"            
+            exit ;;
+        6)
+            echo "opening help doc"
+            sleep 3
+            xdg-open $HOME/bin/webchat/help.txt
+            menu
+            ;;
+        *)
+            echo "invalid choice"
+            sleep 2
+            menu ;;
+
+    esac
+}
+menu

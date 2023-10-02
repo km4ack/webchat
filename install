@@ -1,0 +1,82 @@
+#!/bin/bash
+
+MYDIR="$(cd "$(dirname "$0")" && pwd)"
+
+#verify python is installed
+if ! hash python3; then
+    echo "python not installed. Try"
+    echo "sudo apt install python3.11"
+    exit 1
+fi
+
+clear;echo;echo
+echo "SSID is optional"
+read -p "Call Sign " call
+
+clear;echo;echo
+echo "Leave blank for now if unsure"
+echo "See help.txt in this directory"
+read -p "Latitude " lat
+read -p "Longitude " long
+echo "#############################"
+echo "Enter sudo passwd if prompted"
+echo "#############################"
+sudo apt update
+
+#install pip if needed
+if ! hash pip3; then
+    echo "installing pip"
+    sudo apt install python3-pip
+fi
+
+echo "installing aprsd"
+pip install aprsd
+
+#create bin dir if needed
+mkdir -p $HOME/bin/webchat
+mv ${MYDIR} $HOME/bin/webchat
+
+#make files exec
+chmod +x $HOME/bin/webchat/webchat $HOME/bin/webchat/settings
+
+#link webchat to bin dir
+sudo ln -sf $HOME/bin/webchat/webchat /usr/local/bin/webchat
+
+#copy config files to correct dir
+mkdir -p $HOME/.config/aprsd
+cp $HOME/bin/webchat/config/* $HOME/.config/aprsd/
+
+#update path in shortcut
+who=$(whoami)
+sed -i "s/N0CALL/$who/" $HOME/bin/webchat/webchat.desktop
+
+#mv shortcut to correct dir
+sudo mv $HOME/bin/webchat/webchat.desktop /usr/local/share/applications/
+
+#set help file to read only
+chmod 555 $HOME/bin/webchat/help.txt
+
+#update call in config files
+for file in $HOME/.config/aprsd/*; do
+    sed -i "0,/callsign/{s/callsign.*/callsign\ =\ ${call}/}" ${file}
+done
+echo "Call Sign updated"
+
+#update location in config files
+if [ -n "${lat}" ]; then
+    for file in $HOME/.config/aprsd/*; do
+        sed -i "s/latitude.*/latitude\ =\ ${lat}/" ${file}
+        sed -i "s/longitude.*/longitude\ =\ ${long}/" ${file}
+    done
+    echo "Latitude and Longitude updated"
+fi
+
+echo "Installation complete. Use start menu to start WebChat."
+echo "A reboot may be required for the shortcut to show up in the menu"
+echo "Enjoy! 73, de KM4ACK"
+
+
+
+
+
+
