@@ -75,7 +75,12 @@ Coordinates
 To get the correct coordinates for your position, go to Google maps
 in your browser. Left click on the map at your desired location.
 Look in the bottom center of the screen for the lat/long coordinates.
-Enter these coordinates into the WebChat settings.
+Enter these coordinates into the WebChat settings. By default, the
+coordinates are set to the middle of the US.
+
+example:
+lat  :  38.560
+long : -99.981
 
 ===========
 Rig Control
