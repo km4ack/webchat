@@ -90,6 +90,11 @@ This option is primarily used for local direwolf. It should be set
 to "No" for the Mobilinkd TNC. If using direwolf network, the rig 
 control will be handled by the networked computer running direwolf.
 
-
-
+=====================
+Connecting your Phone
+=====================
+Once WebChat is started, you can connect to it with your mobile device.
+Make sure your phone is on the same network as the computer running
+WebChat. Then, on the mobile device, open the browser and navigate
+to <computer_IP_addr>:8888
 
