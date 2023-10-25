@@ -109,7 +109,7 @@ dire_network(){
 
 mobilinkd(){
     #verify mobilinkd is paired with this computer
-    EXISTING=`bluetoothctl paired-devices | grep Mobilinkd`
+    EXISTING=`bluetoothctl devices | grep Mobilinkd`
     if [ -z "$EXISTING" ]; then
         echo "No Mobilinkd Bluetooth pair found"
         echo "Please pair the Mobilinkd with this computer"
