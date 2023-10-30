@@ -135,7 +135,7 @@ mobilinkd(){
         TNC4) MAC=$MAC ;;
     esac
     #attach to mobilinkd
-    sudo -A rfcomm bind /dev/rfcomm8 $MAC 6
+    sudo -A rfcomm bind /dev/rfcomm8 $MAC
     #verify mobilinkd connected
     ck=$(ls /dev/ | grep rfcomm8)
     if [ -z "$ck" ]; then
