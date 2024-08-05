@@ -18,7 +18,7 @@ script will only configure the WebChat plugin for APRSD. It will configure WebCh
 APRSD can be configured to run over aprs.is and other plugins, that is beyond the scope of this script.
 
 # Supported Platforms
-This script has been tested on Linux Mint 21.1 and a Pi 4 4GB model running Pi OS 64bit. **Note:** Installation on a Pi will take
+This script has been tested on Linux Mint 21, 22, and a Pi 4 4GB model running Pi OS 64bit. **Note:** Installation on a Pi will take
 a while and may seem stuck at some points. Patience will be needed.
 
 # Help
