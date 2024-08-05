@@ -38,7 +38,7 @@ if ! hash pip3; then
 fi
 
 echo "installing aprsd"
-pip install aprsd
+pip install aprsd==3.2.2
 
 #create bin dir if needed
 mkdir -p $HOME/bin
