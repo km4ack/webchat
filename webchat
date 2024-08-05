@@ -6,16 +6,14 @@
 
 #set path of browser
 browser=/usr/bin/firefox
-#uncomment the following line to use the chromium browser on the pi
-#browser=/usr/bin/chromium-browser
 #set port to open in browser. Port is defined in aprsd conf file(s)
 port=8888
 VERSION=1
 
 cleanup()
 {
-	sudo -A killall rigctld > /dev/null 2>&1
-    sudo -A killall direwolf > /dev/null 2>&1
+	#sudo -A killall rigctld > /dev/null 2>&1
+    #sudo -A killall direwolf > /dev/null 2>&1
 	sudo -A rfcomm release /dev/rfcomm8 > /dev/null 2>&1
     aprsd=$(ps aux | grep aprsd | head -1 | awk '{print $2}')
     if [ -n $aprsd ]; then
@@ -84,8 +82,11 @@ rig_control_ck(){
 dire_local(){
     echo "checking rig control"
     rig_control_ck
-    echo "starting direwolf"
-    /usr/local/bin/direwolf &
+    echo "script modified to work with aprs. Will not start direwolf"
+    echo "will not kill direwolf, rigctld on exit. "
+    sleep 10
+    #echo "starting direwolf"
+    #/usr/local/bin/direwolf &
     sleep 1
     echo "starting webchat"
     aprsd_config=$HOME/.config/aprsd/aprsd.dire.local
@@ -98,7 +99,7 @@ dire_local(){
 dire_network(){
     echo "Ready to start Webchat."
     echo "Return to this screen and press"
-    echo "5 then enter to exit"
+    echo "9 then enter to exit"
     read -n 1 -s -r -p "Press any key to continue"
     aprsd_config=$HOME/.config/aprsd/aprsd.dire.network
     $HOME/.local/bin/aprsd webchat -c $aprsd_config & > /dev/null 2>&1
@@ -109,7 +110,7 @@ dire_network(){
 
 mobilinkd(){
     #verify mobilinkd is paired with this computer
-    EXISTING=`bluetoothctl devices | grep Mobilinkd`
+    EXISTING=`bluetoothctl paired-devices | grep Mobilinkd`
     if [ -z "$EXISTING" ]; then
         echo "No Mobilinkd Bluetooth pair found"
         echo "Please pair the Mobilinkd with this computer"
@@ -135,7 +136,7 @@ mobilinkd(){
         TNC4) MAC=$MAC ;;
     esac
     #attach to mobilinkd
-    sudo -A rfcomm bind /dev/rfcomm8 $MAC
+    sudo -A rfcomm bind /dev/rfcomm8 $MAC 6
     #verify mobilinkd connected
     ck=$(ls /dev/ | grep rfcomm8)
     if [ -z "$ck" ]; then
@@ -148,7 +149,31 @@ mobilinkd(){
     aprsd_config=$HOME/.config/aprsd/aprsd.mobilinkd
     echo "Ready to start Webchat."
     echo "Return to this screen and press"
-    echo "5 then enter to exit"
+    echo "9 then enter to exit"
+    read -n 1 -s -r -p "Press any key to continue"
+    $HOME/.local/bin/aprsd webchat -c $aprsd_config & > /dev/null 2>&1
+    sleep 2
+    ${browser} 127.0.0.1:$port &
+    menu
+}
+
+d75(){
+    #define mac addr & attach to radio
+    MAC=$(cat $HOME/bin/webchat/config/d75mac.txt)
+    sudo -A rfcomm bind /dev/rfcomm8 $MAC 2
+    #verify mobilinkd connected
+    ck=$(ls /dev/ | grep rfcomm8)
+    if [ -z "$ck" ]; then
+        echo "connection to radio failed"
+        sleep 3
+        menu
+    else
+        echo "Connected to radio"
+    fi
+    aprsd_config=$HOME/.config/aprsd/aprsd.mobilinkd
+    echo "Ready to start Webchat."
+    echo "Return to this screen and press"
+    echo "9 then enter to exit"
     read -n 1 -s -r -p "Press any key to continue"
     $HOME/.local/bin/aprsd webchat -c $aprsd_config & > /dev/null 2>&1
     sleep 2
@@ -161,9 +186,10 @@ menu(){
     echo "1) Direwolf Local"
     echo "2) Direwolf Network"
     echo "3) Mobilinkd"
-    echo "4) Settings"
-    echo "5) Exit"
+    echo "4) Kenwood D75"
+    echo "5) Settings"
     echo "6) Help"
+    echo "9) Exit"
     echo
     read -p "Pick transport number " ans
 
@@ -175,17 +201,19 @@ menu(){
         3)
             mobilinkd ;;
         4)
+            d75 ;;
+        5)
             $HOME/bin/webchat/settings
             menu ;;
-        5)
-            echo "Shutting down.....standby"            
-            exit ;;
         6)
             echo "opening help doc"
             sleep 3
             xdg-open $HOME/bin/webchat/help.txt
             menu
             ;;
+        9)
+            echo "Shutting down.....standby"            
+            exit ;;
         *)
             echo "invalid choice"
             sleep 2
